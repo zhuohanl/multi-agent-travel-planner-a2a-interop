@@ -1,0 +1,18 @@
+{
+  "mode": "plan",
+  "destination_city": "Fiji",
+  "start_date": "2026-09-25",
+  "end_date": "2026-09-30",
+  "num_travelers": 2,
+  "budget_per_person": 5000,
+  "budget_currency": "AUD",
+  "origin_city": "Melbourne",
+  "interests": [
+    "food",
+    "snorkeling",
+    "staycation"
+  ],
+  "constraints": [
+    "one traveller is a vegetarian"
+  ]
+}

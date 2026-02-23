@@ -1,0 +1,41 @@
+# Pro Code M365 SDK Configuration
+# Connection settings for calling Copilot Studio agents from custom code
+#
+# IMPORTANT: Environment variables (COPILOTSTUDIOAGENT__*) are the primary
+# configuration method. This YAML serves as reference documentation for
+# the required variables and their purpose.
+
+platform: pro_code
+tenant_id: ${COPILOTSTUDIOAGENT__TENANTID}
+
+# M365 SDK Connection Settings
+# These environment variables are shared across all Copilot Studio agent calls.
+m365_sdk:
+  # Power Platform environment ID (found in CS portal settings)
+  environment_id: ${COPILOTSTUDIOAGENT__ENVIRONMENTID}
+  # Azure AD app registration for Pro Code -> CS authentication
+  app_id: ${COPILOTSTUDIOAGENT__AGENTAPPID}
+  # Client secret (store in Key Vault for production, .env for local dev)
+  app_secret: ${COPILOTSTUDIOAGENT__AGENTAPPSECRET}
+  # Token scope for Power Platform API
+  token_scope: "https://api.powerplatform.com/.default"
+
+# Target agents in Copilot Studio
+# Each agent has its own schema name (unique identifier in the environment).
+agents:
+  approval:
+    # Agent-specific schema name (set after portal deployment in INTEROP-013)
+    schema_name: ${COPILOTSTUDIOAGENT__APPROVAL__SCHEMANAME}
+    # Event name emitted by the approval agent
+    event_name: approval_decision
+  weather:
+    # Agent-specific schema name (set after portal deployment in INTEROP-010)
+    schema_name: ${COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME}
+
+# Required Environment Variables Summary:
+# - COPILOTSTUDIOAGENT__TENANTID: Azure AD tenant ID
+# - COPILOTSTUDIOAGENT__ENVIRONMENTID: Power Platform environment ID
+# - COPILOTSTUDIOAGENT__AGENTAPPID: Azure AD app client ID
+# - COPILOTSTUDIOAGENT__AGENTAPPSECRET: Azure AD app client secret
+# - COPILOTSTUDIOAGENT__APPROVAL__SCHEMANAME: Approval agent schema name
+# - COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME: Weather agent schema name

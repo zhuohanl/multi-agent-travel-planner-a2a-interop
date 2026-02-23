@@ -1,0 +1,27 @@
+{
+  "name": "multi-agent-travel-planner",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react-dom": "^19.2.0",
+    "react": "^19.2.0",
+    "three": "0.160.0",
+    "@react-three/fiber": "8.15.12",
+    "@react-three/drei": "9.96.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,47 @@
+# Copilot Studio Agent Configuration
+# Reference configuration for CS agents (created manually via portal)
+
+platform: copilot_studio
+environment_id: ${COPILOTSTUDIO_ENVIRONMENT_ID}
+
+agents:
+  weather:
+    name: Weather Agent
+    description: "Provides weather forecasts for travel destinations"
+    # agent_id will be populated after manual portal deployment (INTEROP-010)
+    # Use schema_name for programmatic access via M365 Agents SDK
+    agent_id: ${COPILOTSTUDIOAGENT__WEATHER__AGENTID}
+    schema_name: ${COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME}
+    topics:
+      - get_weather_forecast
+    authentication:
+      app_id: ${INTEROP_FOUNDRY_TO_CS_APP_ID}
+      tenant_id: ${AZURE_TENANT_ID}
+
+  approval:
+    name: Approval Agent
+    description: "Human-in-the-loop approval for travel itineraries"
+    # agent_id will be populated after manual portal deployment (INTEROP-013)
+    # Use schema_name for programmatic access via M365 Agents SDK
+    agent_id: ${COPILOTSTUDIOAGENT__APPROVAL__AGENTID}
+    schema_name: ${COPILOTSTUDIOAGENT__APPROVAL__SCHEMANAME}
+    topics:
+      - request_approval
+      - get_approval_status
+    authentication:
+      app_id: ${INTEROP_PROCODE_TO_CS_APP_ID}
+      tenant_id: ${AZURE_TENANT_ID}
+
+  travel_planning_parent:
+    name: Travel Planning Parent Agent
+    description: "Routes travel questions to appropriate discovery agents"
+    added_agents:
+      - transport
+      - poi
+      - events
+      - stay
+      - dining
+      - weather  # Internal CS agent
+    # Authentication: Uses Microsoft Entra ID User Login (delegated auth).
+    # No separate app registration required — the signed-in user's RBAC
+    # permissions on the Foundry project grant access.

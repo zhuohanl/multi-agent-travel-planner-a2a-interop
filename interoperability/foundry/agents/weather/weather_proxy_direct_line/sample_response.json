@@ -1,0 +1,17 @@
+{
+  "id": "resp_2QNE56P1jGWnGvtxvLCBP0FvIlSSGazTqNET04FGLLpRkFK43l",
+  "status": "completed",
+  "output": [
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "{\"location\": \"Tokyo, Japan\", \"start_date\": \"2025-07-01\", \"end_date\": \"2025-07-10\", \"climate_summary\": {\"average_high_temp_c\": 30.0, \"average_low_temp_c\": 22.0, \"average_precipitation_chance\": 55, \"typical_conditions\": \"Hot and humid with frequent cloudy periods and occasional rain showers, typical of the early summer rainy season.\"}, \"summary\": \"Early July in Tokyo is usually hot and muggy, with a high chance of rain and overcast skies due to the lingering rainy season.\"}"
+        }
+      ],
+      "type": "message"
+    }
+  ],
+  "object": "response"
+}

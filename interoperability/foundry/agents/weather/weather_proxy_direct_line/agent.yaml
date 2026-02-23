@@ -1,0 +1,24 @@
+# Weather Proxy - Hosted Agent Definition
+# Proxy agent that calls Copilot Studio Weather Agent via Direct Line API
+# Design doc references: INTEROP-011B Implementation Details (lines 2178-2460)
+
+name: weather-proxy
+description: Proxy agent that calls Copilot Studio Weather Agent for climate data
+type: hosted
+framework: custom  # Custom implementation using Direct Line REST API
+
+# Container configuration (used by deploy.py)
+container:
+  image: ${WEATHER_PROXY_IMAGE}
+  cpu: "1"
+  memory: "2Gi"
+
+protocol:
+  # Supports the responses protocol for conversational agent access
+  - protocol: responses
+    version: v1
+
+# Environment variable for Copilot Studio connection via Direct Line
+# Get the secret from: Copilot Studio > Settings > Security > Web channel security
+environment:
+  COPILOTSTUDIOAGENT__DIRECTLINE_SECRET: ${COPILOTSTUDIOAGENT__DIRECTLINE_SECRET}

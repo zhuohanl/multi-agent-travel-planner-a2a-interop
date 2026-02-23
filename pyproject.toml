@@ -1,0 +1,54 @@
+[project]
+name = "multi-agent-travel-planner-a2a"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "a2a-sdk>=0.3.22",
+    "agent-framework>=1.0.0b260107",
+    "agent-framework-azure-ai>=1.0.0b260107",
+    "asyncio>=4.0.0",
+    "azure-ai-agents>=1.0.0",
+    "azure-ai-agentserver-agentframework>=1.0.0b10",
+    "azure-ai-agentserver-core>=1.0.0b10",
+    "azure-ai-projects>=2.0.0b2",
+    "azure-identity>=1.25.1",
+    "microsoft-agents-copilotstudio-client>=0.7.0",
+    "msal>=1.28.0",
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.2.1",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+]
+telemetry = [
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "azure-monitor-opentelemetry>=1.2.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --cov=src --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

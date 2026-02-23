@@ -1,0 +1,158 @@
+# Copilot Studio CI Workflow
+#
+# Validates Copilot Studio agent configuration and exports agent definitions
+# for version control. Uses Power Platform CLI (pac) for agent operations
+# and the project's verify.py for configuration validation.
+#
+# Required GitHub Secrets:
+#   POWER_PLATFORM_CLIENT_ID       - Azure AD app ID for Power Platform authentication
+#   POWER_PLATFORM_CLIENT_SECRET   - Azure AD app secret for Power Platform authentication
+#   POWER_PLATFORM_TENANT_ID       - Azure AD tenant ID
+#   COPILOTSTUDIOAGENT__TENANTID        - Copilot Studio tenant ID
+#   COPILOTSTUDIOAGENT__AGENTAPPID      - Copilot Studio app ID
+#   COPILOTSTUDIOAGENT__AGENTAPPSECRET  - Copilot Studio app secret
+#   COPILOTSTUDIOAGENT__ENVIRONMENTID   - Copilot Studio environment ID
+#   COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME  - Weather agent schema name
+#   COPILOTSTUDIOAGENT__APPROVAL__SCHEMANAME - Approval agent schema name
+#   COPILOTSTUDIOAGENT__TRAVEL_PLANNING_PARENT__SCHEMANAME - Q&A Parent agent schema name
+#
+# Usage:
+#   Trigger manually via Actions tab > "Copilot Studio CI" > "Run workflow"
+#   Select target environment (dev/staging/prod) and desired operations.
+
+name: Copilot Studio CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target Power Platform environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      run_export:
+        description: "Export agent definitions for version control"
+        required: false
+        default: false
+        type: boolean
+      run_validation:
+        description: "Run verify.py validation checks"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  validate:
+    name: Validate Copilot Studio Agents
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run_validation }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Copilot Studio verification
+        env:
+          COPILOTSTUDIOAGENT__TENANTID: ${{ secrets.COPILOTSTUDIOAGENT__TENANTID }}
+          COPILOTSTUDIOAGENT__AGENTAPPID: ${{ secrets.COPILOTSTUDIOAGENT__AGENTAPPID }}
+          COPILOTSTUDIOAGENT__AGENTAPPSECRET: ${{ secrets.COPILOTSTUDIOAGENT__AGENTAPPSECRET }}
+          COPILOTSTUDIOAGENT__ENVIRONMENTID: ${{ secrets.COPILOTSTUDIOAGENT__ENVIRONMENTID }}
+          COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME: ${{ secrets.COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME }}
+          COPILOTSTUDIOAGENT__APPROVAL__SCHEMANAME: ${{ secrets.COPILOTSTUDIOAGENT__APPROVAL__SCHEMANAME }}
+          COPILOTSTUDIOAGENT__TRAVEL_PLANNING_PARENT__SCHEMANAME: ${{ secrets.COPILOTSTUDIOAGENT__TRAVEL_PLANNING_PARENT__SCHEMANAME }}
+        run: |
+          echo "=== Copilot Studio Agent Verification ==="
+          echo "Environment: ${{ inputs.environment }}"
+          echo ""
+          uv run python interoperability/copilot_studio/verify.py --verbose 2>&1 | tee validation-results.txt
+        continue-on-error: true
+
+      - name: Run config consistency validation
+        run: |
+          echo "=== Config Consistency Validation ==="
+          uv run python interoperability/validate_config.py --all 2>&1 | tee -a validation-results.txt
+        continue-on-error: true
+
+      - name: Upload validation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-results-${{ inputs.environment }}
+          path: validation-results.txt
+          retention-days: 30
+
+  export:
+    name: Export Agent Definitions
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run_export }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Power Platform CLI
+        run: |
+          echo "=== Installing Power Platform CLI ==="
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Authenticate with Power Platform
+        env:
+          POWER_PLATFORM_CLIENT_ID: ${{ secrets.POWER_PLATFORM_CLIENT_ID }}
+          POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
+          POWER_PLATFORM_TENANT_ID: ${{ secrets.POWER_PLATFORM_TENANT_ID }}
+        run: |
+          echo "=== Authenticating with Power Platform ==="
+          pac auth create \
+            --applicationId "$POWER_PLATFORM_CLIENT_ID" \
+            --clientSecret "$POWER_PLATFORM_CLIENT_SECRET" \
+            --tenant "$POWER_PLATFORM_TENANT_ID" \
+            --environment "${{ inputs.environment }}"
+
+      - name: Select environment
+        run: |
+          echo "=== Selecting environment: ${{ inputs.environment }} ==="
+          pac org select --environment "${{ inputs.environment }}"
+
+      - name: Export Copilot Studio agent definitions
+        run: |
+          echo "=== Exporting Agent Definitions ==="
+          mkdir -p exports/${{ inputs.environment }}
+
+          # List available agents
+          echo "Listing agents..."
+          pac copilot list 2>&1 | tee exports/${{ inputs.environment }}/agent-list.txt || true
+
+          # Export each agent definition (if pac copilot export is supported)
+          echo ""
+          echo "Attempting agent export..."
+          pac copilot export --output exports/${{ inputs.environment }}/ 2>&1 | tee exports/${{ inputs.environment }}/export-log.txt || {
+            echo "Note: pac copilot export may not be available in current CLI version."
+            echo "Agent definitions are managed via portal and documented in:"
+            echo "  - interoperability/copilot_studio/agents/weather/README.md"
+            echo "  - interoperability/copilot_studio/agents/approval/README.md"
+            echo "  - interoperability/copilot_studio/agents/travel_planning_parent/README.md"
+          }
+
+      - name: Upload exported definitions
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent-exports-${{ inputs.environment }}
+          path: exports/
+          retention-days: 90

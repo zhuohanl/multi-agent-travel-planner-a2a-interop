@@ -1,0 +1,5 @@
+{
+  "name": "Multi-agent Travel Planner",
+  "description": "A multi-agent travel planner that discovers, synthesizes, and builds your perfect trip itinerary.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,32 @@
+# Discovery Workflow (Pro-Code) Dependencies
+#
+# This workflow orchestrates discovery agents and integrates with
+# Copilot Studio Weather agent via Weather Proxy.
+#
+# Design doc references:
+# - Development Workflow (Portal-First Approach) lines 509-552
+# - CI/CD Reference Pattern lines 1255-1354
+
+# Azure AI hosted agent server (for /responses endpoint)
+azure-ai-agentserver-core
+
+# Azure AI Foundry SDK (for invoking other agents via AIProjectClient)
+azure-ai-projects
+
+# Azure authentication
+azure-identity
+
+# M365 Agents SDK (for Copilot Studio integration via Weather Proxy)
+microsoft-agents-copilotstudio-client>=0.7.0
+
+# MSAL for token acquisition (Copilot Studio auth)
+msal>=1.28.0
+
+# Async HTTP client
+aiohttp
+
+# Schema validation (shared models from src/shared/models.py)
+pydantic>=2.0.0
+
+# Environment variables
+python-dotenv

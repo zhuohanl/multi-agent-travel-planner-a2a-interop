@@ -1,0 +1,2 @@
+# Schemas are referenced from src/shared/models.py
+# This directory exists for future schema extensions specific to interoperability

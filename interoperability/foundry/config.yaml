@@ -1,0 +1,83 @@
+# Azure AI Foundry Agent Configuration
+# This file defines all agents to be deployed to Foundry
+
+platform: azure_ai_foundry
+resource_group: ${AZURE_RESOURCE_GROUP}
+project: interoperability-demo
+
+agents:
+  # Discovery agents (native - prompt-based)
+  # The agent.yaml files in interoperability/foundry/agents/ contain the full
+  # instructions and tool definitions ready for Foundry deployment.
+  # These were generated from src/agents/ prompts in INTEROP-005.
+  transport:
+    type: native
+    source: interoperability/foundry/agents/transport
+    model: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+
+  poi:
+    type: native
+    source: interoperability/foundry/agents/poi
+    model: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+
+  events:
+    type: native
+    source: interoperability/foundry/agents/events
+    model: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+
+  # Discovery agents (hosted - custom code)
+  stay:
+    type: hosted
+    framework: agent_framework
+    source: interoperability/foundry/agents/stay
+
+  dining:
+    type: hosted
+    framework: langgraph
+    source: interoperability/foundry/agents/dining
+
+  # Workflow support agents (native - prompt-based)
+  # These agents are defined in interoperability/foundry/agents/ since they
+  # are specific to the Foundry workflow and don't exist in src/agents/.
+  aggregator:
+    type: native
+    source: interoperability/foundry/agents/aggregator
+    model: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+
+  route:
+    type: native
+    source: interoperability/foundry/agents/route
+    model: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+
+  # Weather Proxy (Option B only - bridges to CS Weather agent)
+  weather-proxy:
+    type: hosted
+    framework: custom  # Uses Direct Line API to call Copilot Studio
+    source: interoperability/foundry/agents/weather/weather_proxy_direct_line
+    description: "Proxy agent that calls Copilot Studio Weather agent via Direct Line API"
+    env_vars:
+      - COPILOTSTUDIOAGENT__DIRECTLINE_SECRET
+
+workflows:
+  # Option A: Pro-code workflow (deployed as hosted agent)
+  # TODO: Re-enable when CopilotStudioAgent env vars are fully configured
+  # discovery_procode:
+  #   type: hosted_workflow
+  #   source: interoperability/foundry/workflows/discovery_workflow_procode
+  #   agents: [transport, poi, events, stay, dining, weather-proxy, aggregator, route]
+  #   description: "Pro-code workflow using Agent Framework with CopilotStudioAgent"
+  #   env_vars:
+  #     - AZURE_AI_PROJECT_ENDPOINT
+  #     - AZURE_OPENAI_DEPLOYMENT_NAME
+  #     - COPILOTSTUDIOAGENT__TENANTID
+  #     - COPILOTSTUDIOAGENT__ENVIRONMENTID
+  #     - COPILOTSTUDIOAGENT__AGENTAPPID
+  #     - COPILOTSTUDIOAGENT__AGENTAPPSECRET
+  #     - COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME
+
+  # Option B: Declarative workflow (YAML-based)
+  discovery_declarative:
+    type: declarative
+    source: interoperability/foundry/workflows/discovery_workflow_declarative
+    agents: [transport, poi, events, stay, dining, weather-proxy, aggregator, route]
+    description: "Declarative YAML workflow with Weather Proxy for CS integration"

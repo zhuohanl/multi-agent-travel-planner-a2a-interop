@@ -1,0 +1,25 @@
+# Weather Proxy - Hosted Agent Definition
+# Proxy agent that calls Copilot Studio Weather Agent via M365 Agents SDK (Client Credentials Flow)
+
+name: weather-proxy
+description: Proxy agent that calls Copilot Studio Weather Agent for climate data
+type: hosted
+framework: custom
+
+# Container configuration (used by deploy.py)
+container:
+  image: ${WEATHER_PROXY_IMAGE}
+  cpu: "1"
+  memory: "2Gi"
+
+protocol:
+  - protocol: responses
+    version: v1
+
+# Environment variables for Copilot Studio connection via M365 Agents SDK
+environment:
+  COPILOTSTUDIOAGENT__TENANTID: ${COPILOTSTUDIOAGENT__TENANTID}
+  COPILOTSTUDIOAGENT__AGENTAPPID: ${COPILOTSTUDIOAGENT__AGENTAPPID}
+  COPILOTSTUDIOAGENT__AGENTAPPSECRET: ${COPILOTSTUDIOAGENT__AGENTAPPSECRET}
+  COPILOTSTUDIOAGENT__ENVIRONMENTID: ${COPILOTSTUDIOAGENT__ENVIRONMENTID}
+  COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME: ${COPILOTSTUDIOAGENT__WEATHER__SCHEMANAME}

@@ -1,0 +1,134 @@
+kind: workflow
+trigger:
+  kind: OnConversationStart
+  id: trigger_wf
+  actions:
+    # Initialize local variables from user input.
+    # The Intake Form outputs a structured JSON object which is
+    # serialized to System.LastMessageText as a raw JSON string.
+    #
+    # TYPE HANDLING:
+    # - Local.TripRequestJson: Raw JSON string for use in Concatenate() expressions
+    # - Local.TripRequestMsg: Message-wrapped version for InvokeAzureAgent input
+    - kind: SetVariable
+      id: init_trip_request_json
+      variable: Local.TripRequestJson
+      value: =System.LastMessageText
+
+    - kind: SetVariable
+      id: init_trip_request_msg
+      variable: Local.TripRequestMsg
+      value: =UserMessage(Local.TripRequestJson)
+
+    # Invoke discovery agents.
+    # Each agent receives the message-wrapped trip request and stores its
+    # structured response via responseObject. autoSend is false to suppress
+    # intermediate output.
+    - kind: InvokeAzureAgent
+      id: invoke_transport
+      agent:
+        name: transport
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.TripRequestMsg
+      output:
+        autoSend: false
+        responseObject: Local.TransportResponse
+
+    - kind: InvokeAzureAgent
+      id: invoke_stay
+      agent:
+        name: stay
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.TripRequestMsg
+      output:
+        autoSend: false
+        responseObject: Local.StayResponse
+
+    - kind: InvokeAzureAgent
+      id: invoke_poi
+      agent:
+        name: poi
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.TripRequestMsg
+      output:
+        autoSend: false
+        responseObject: Local.POIResponse
+
+    - kind: InvokeAzureAgent
+      id: invoke_events
+      agent:
+        name: events
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.TripRequestMsg
+      output:
+        autoSend: false
+        responseObject: Local.EventsResponse
+
+    - kind: InvokeAzureAgent
+      id: invoke_dining
+      agent:
+        name: dining
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.TripRequestMsg
+      output:
+        autoSend: false
+        responseObject: Local.DiningResponse
+
+    - kind: InvokeAzureAgent
+      id: invoke_weather
+      agent:
+        name: weather-proxy
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.TripRequestMsg
+      output:
+        autoSend: false
+        responseObject: Local.WeatherResponse
+
+    # Combine all discovery results into a single object for the route agent.
+    - kind: SetVariable
+      id: combine_results
+      variable: Local.DiscoveryResults
+      value: |-
+        ={
+          pois: Local.POIResponse,
+          stays: Local.StayResponse,
+          transport: Local.TransportResponse,
+          events: Local.EventsResponse,
+          dining: Local.DiningResponse,
+          weather: Local.WeatherResponse
+        }
+
+    # Bundle discovery results with trip spec for the route agent.
+    - kind: SetVariable
+      id: prepare_route_input
+      variable: Local.RouteInput
+      value: |-
+        ={
+        DiscoveryResults: Local.DiscoveryResults,
+        TripSpec: Local.TripRequestJson
+        }
+
+    # Invoke route agent to create the final itinerary.
+    - kind: InvokeAzureAgent
+      id: invoke_route
+      agent:
+        name: route
+      conversationId: =System.ConversationId
+      input:
+        messages: =Local.RouteInput
+      output:
+        autoSend: true
+        responseObject: Local.RouteResponse
+
+    - kind: SendActivity
+      activity: Local.RouteResponse
+      id: send_result
+id: ""
+name: travel-planner-workflow-v1
+description: ""

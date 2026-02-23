@@ -1,0 +1,16 @@
+# Weather Proxy Dependencies - Hosted Agent using M365 Agents SDK with Client Credentials Flow
+
+# Azure AI hosted agent server (for /responses endpoint)
+azure-ai-agentserver-core
+
+# M365 Agents SDK - Copilot Studio client
+microsoft-agents-copilotstudio-client
+
+# MSAL for client credentials token acquisition
+msal
+
+# Schema validation (shared models from src/shared/models.py)
+pydantic>=2.0.0
+
+# Environment variables
+python-dotenv

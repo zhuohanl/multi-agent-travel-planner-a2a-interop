@@ -1,0 +1,21 @@
+# Dining Agent Dependencies - LangGraph Hosted Agent
+#
+# Design doc references:
+# - Appendix A.2 lines 1544-1551: Installation packages for hosted agents
+# - Line 1549: azure-ai-agentserver-langgraph for LangGraph agents
+
+# Azure AI hosted agent packages (preview)
+azure-ai-agentserver-langgraph==1.0.0b10
+
+# Azure authentication
+azure-identity
+
+# LangGraph for workflow patterns (used by main.py)
+langgraph>=0.2.0
+
+# Required by existing agent logic
+pydantic>=2.0.0
+python-dotenv
+
+# OpenAI for model access (used by LangChain)
+openai>=1.0.0,<2.0.0

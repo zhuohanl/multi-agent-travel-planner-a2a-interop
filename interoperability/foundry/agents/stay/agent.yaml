@@ -1,0 +1,28 @@
+# Stay Agent - Hosted Agent Definition (Microsoft Agent Framework)
+# Deployed to Azure AI Foundry as a hosted agent
+# Design doc references: lines 64-97 (Agent Distribution), 1527-1646 (Hosted Agents A.2)
+
+name: stay-agent
+description: Hotel and accommodation search agent using Microsoft Agent Framework
+type: hosted
+framework: agent_framework
+
+# Container configuration (used by deploy.py)
+container:
+  image: ${STAY_AGENT_IMAGE}
+  cpu: "1"
+  memory: "2Gi"
+
+protocol:
+  # Supports the responses protocol for conversational agent access
+  - protocol: responses
+    version: v1
+
+# Environment variables (used by deploy.py for hosted agent deployment)
+environment:
+  PROJECT_ENDPOINT: ${PROJECT_ENDPOINT}
+  AZURE_OPENAI_DEPLOYMENT_NAME: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+  BING_PROJECT_CONNECTION_ID: ${BING_PROJECT_CONNECTION_ID}
+
+# The main.py wraps the existing src/agents/stay_agent logic
+# without rewriting it (following the "wrap, don't rewrite" principle)

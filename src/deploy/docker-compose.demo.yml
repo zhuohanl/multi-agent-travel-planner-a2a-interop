@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: src/deploy/docker/backend.demo.Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+      ORCHESTRATOR_BIND_HOST: 0.0.0.0
+      DEMO_HEALTHCHECK_HOST: 127.0.0.1
+    ports:
+      - "10000:10000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:10000/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: src/deploy/docker/frontend.demo.Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      VITE_API_BASE_URL: http://localhost:10000
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5173').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s

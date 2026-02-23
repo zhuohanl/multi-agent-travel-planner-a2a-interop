@@ -1,0 +1,52 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+wheels/
+*.egg-info
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments and local env files
+.venv/
+venv/
+.env*
+!.env.example
+
+# IDE/editor state
+.vscode/
+.idea/
+settings.local.json
+launch.json
+
+# Runtime/debug outputs
+*.log
+*.out
+*.tmp
+logs/
+**/logs/
+langgraph/
+.local_token_cache.json
+
+# Removed scratch/test artifacts (do not reintroduce)
+.claude/
+api-test/
+error/
+docs/plans/
+docs/interoperability-plan/
+CLAUDE.md
+CODEX.md
+lessons.md
+prompt*.md
+progress*.txt
+specs/prd*.json
+test.http
+api.http
+cleanup_plan.md
+
+.agents
