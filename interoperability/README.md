@@ -1,31 +1,24 @@
 # Interoperability Demo
 
-This directory demonstrates cross-platform agent interoperability across the Microsoft ecosystem — specifically between **Azure AI Foundry**, **Copilot Studio**, and **Pro Code** (custom orchestrator). It reuses agent logic from the A2A travel planning system in `src/`.
+This directory demonstrates cross-platform agent interoperability across the Microsoft ecosystem — specifically between **Microsoft Foundry**, **Copilot Studio**, and **Pro Code** (custom orchestrator). It reuses agent logic from the A2A travel planning system in [`src/`](../src).
 
-> **Prerequisites:**
-> 1. You will need access to [Copilot Studio](https://copilotstudio.preview.microsoft.com), [Azure](https://portal.azure.com) and [Microsoft Foundry]()
-> 2. You need access to both **Copilot Studio** and **Microsoft Foundry** under the **same Azure AD tenant**. If you encounter access issues during setup, contact your tenant admin.
-> 3. This demo uses the [new Microsoft Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/) (not classic Foundry).
-> 4. For Azure, you will need:
->    - An Azure `subscription` with the right permissions.
->    - Azure RBAC roles: 
->        - Note these role grants are for demo purpose only and should be narrowed down to honor least privilege in production
->        - `Contributor` or `Owner` role at the subscription or resource group level
->        - `Role Based Access Control Administrator` role at the subscription or resource group level
->        - `Azure AI User` role to manage Foundry project
->    - A `Foundry project` created with a configured endpoint.
->    - An `Azure OpenAI model` deployment (e.g. gpt-4.1)
->    - As you run through this guide, you will create Azure resources such as Azure Container Registry, Bing Grounding Search, Application Insights, etc.
-> 5. For Copilot Studio, you will need:
->    - Valid license to create Copilot Studio agent, e.g. `Microsoft Copilot Studio User license`
+> **Note:** The setup process for this demo is **semi-automated and semi-manual** by nature — some steps use scripts while others require portal configuration. This leaves space for further automation as platform capabilities evolve.
 
-## Local Tooling Prerequisites
+## Agent Service & Framework
 
-To execute the setup commands in this README, install:
+| Technology | What it is | Where it's used | Why |
+|------------|-----------|-----------------|-----|
+| **[Microsoft Foundry New (Foundry v2) — Agent Service](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview?view=foundry)** (preview) | Next-generation Foundry platform supporting native and hosted agent deployments | [`foundry/`](foundry) — adaptors that convert the Agent Framework agents into **Foundry v2 native agents** | Enables cross-platform interoperability — the same agent logic deployed as Foundry-native agents can integrate with Copilot Studio and other Microsoft surfaces |
 
-- Python 3.13+
-- `uv` package manager
-- Azure CLI (`az`) with active login
+### Relationship to the A2A implementation
+
+The [A2A multi-agent system](../src) builds 11 working agents using the [Microsoft Agent Framework](https://github.com/microsoft/agents) (open-source) and exposes them via the [A2A protocol](https://github.com/google/A2A). This interoperability layer adapts those same Agent Framework agents — without rewriting their core logic — into [Foundry New (v2)](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview?view=foundry) native and hosted agents, enabling cross-platform scenarios with [Copilot Studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/) and other Microsoft surfaces.
+
+Specifically, the [`foundry/`](foundry) directory contains adaptors ([`shared/agent_wrappers/`](shared/agent_wrappers)) that:
+
+- **Extract** agent instructions, tools, and configuration from the A2A agents in [`../src/agents/`](../src/agents)
+- **Convert** them into Foundry v2 agent definitions (native agents or hosted agents running in containers)
+- **Deploy** them to an Microsoft Foundry project, where they can be orchestrated by Foundry workflows or called from Copilot Studio via the [Add Agents](https://learn.microsoft.com/en-gb/microsoft-copilot-studio/add-agent-foundry-agent) feature
 
 ## Overview
 
@@ -33,18 +26,18 @@ The demo showcases how agents built on different Microsoft platforms can work to
 
 | Agent | Platform | Type |
 |-------|----------|------|
-| Transport | Azure AI Foundry | Native Agent |
-| POI | Azure AI Foundry | Native Agent |
-| Events | Azure AI Foundry | Native Agent |
-| Stay | Azure AI Foundry | Hosted Agent (Microsoft Agent Framework) |
-| Dining | Azure AI Foundry | Hosted Agent (LangGraph) |
+| Transport | Microsoft Foundry | Native Agent |
+| POI | Microsoft Foundry | Native Agent |
+| Events | Microsoft Foundry | Native Agent |
+| Stay | Microsoft Foundry | Hosted Agent (Microsoft Agent Framework) |
+| Dining | Microsoft Foundry | Hosted Agent (LangGraph) |
 | Weather | Copilot Studio | Copilot Studio Agent |
 
 ## Demo Flows
 
 ### Demo 1: Foundry Workflow with Cross-Platform Agents (Stable)
 
-**Direction:** Azure AI Foundry → Copilot Studio
+**Direction:** Microsoft Foundry → Copilot Studio
 
 A Foundry declarative workflow orchestrates all six discovery agents in parallel, including calling the Weather agent hosted in Copilot Studio via a Weather Proxy hosted agent. Results are aggregated and passed to a Route agent that produces a draft itinerary.
 
@@ -81,7 +74,7 @@ User → Foundry Intake TripSpec → Discovery Workflow → Draft Itinerary
 
 ### Demo 2: Copilot Studio Routing to Foundry Agents (Stable)
 
-**Direction:** Copilot Studio → Azure AI Foundry
+**Direction:** Copilot Studio → Microsoft Foundry
 
 A Travel Planning Parent Agent in Copilot Studio receives natural language travel questions, determines which domain agents are relevant, calls them via the [Add Agents](https://learn.microsoft.com/en-gb/microsoft-copilot-studio/add-agent-foundry-agent) feature, and returns an aggregated answer.
 
@@ -125,13 +118,41 @@ The existing A2A orchestrator calls a Copilot Studio Approval Agent via the M365
 
 Follow these steps in order to set up all resources from scratch. Each step builds on the previous one.
 
+### Prerequisites
+
+#### Azure & Copilot Studio Access
+
+1. You will need access to [Copilot Studio](https://copilotstudio.preview.microsoft.com), [Azure](https://portal.azure.com) and [Microsoft Foundry]()
+2. You need access to both **Copilot Studio** and **Microsoft Foundry** under the **same Azure AD tenant**. If you encounter access issues during setup, contact your tenant admin.
+3. This demo uses the [new Microsoft Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/) (not classic Foundry).
+4. For Azure, you will need:
+   - An Azure `subscription` with the right permissions.
+   - Azure RBAC roles:
+       - Note these role grants are for demo purpose only and should be narrowed down to honor least privilege in production
+       - `Contributor` or `Owner` role at the subscription or resource group level
+       - `Role Based Access Control Administrator` role at the subscription or resource group level
+       - `Azure AI User` role to manage Foundry project
+   - A `Foundry project` created with a configured endpoint.
+   - An `Azure OpenAI model` deployment (e.g. gpt-4.1)
+   - As you run through this guide, you will create Azure resources such as Azure Container Registry, Bing Grounding Search, Application Insights, etc.
+5. For Copilot Studio, you will need:
+   - Valid license to create Copilot Studio agent, e.g. `Microsoft Copilot Studio User license`
+
+#### Local Tooling
+
+To execute the setup commands in this README, install:
+
+- Python 3.13+
+- `uv` package manager
+- Azure CLI (`az`) with active login
+
 ### Step 1: Configure Environment Variables
 
 Copy `.env.example` to `.env` at the project root and fill in the values for the **Agent Platform Interoperability** section. The table below lists the required variables — see comments in `.env.example` for where to find each value.
 
 | Variable | Required for | Description |
 |----------|-------------|-------------|
-| `PROJECT_ENDPOINT` | All demos | Azure AI Foundry project endpoint. Get from Foundry portal > Project > Overview |
+| `PROJECT_ENDPOINT` | All demos | Microsoft Foundry project endpoint. Get from Foundry portal > Project > Overview |
 | `AZURE_RESOURCE_GROUP` | All demos | Azure resource group containing the Foundry project |
 | `AZURE_OPENAI_ENDPOINT` | All demos | Azure OpenAI endpoint (shared with A2A) |
 | `AZURE_OPENAI_DEPLOYMENT_NAME` | All demos | Model deployment name, e.g. `gpt-4.1` (shared with A2A) |
@@ -308,14 +329,14 @@ There are other ways to archieve this as well, see [Azure Container Registry Ent
    ![Hosted Agents ready to serve](foundry/assets/hosted_agent_already_started.png)
 
    If they are pending "Start hosted agent":
-   
+
    Click on the button to start the deployment.
 
    Alternatively, follow [start an agent deployment](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/hosted-agents?view=foundry#start-an-agent-deployment) to start the deployment.
-   
+
    ![Hosted Agents pending start](foundry/assets/start_hosted_agents.png)
 
-10. Play with the hosted agents to make sure they are working as expected. 
+10. Play with the hosted agents to make sure they are working as expected.
 
 If not, check [View container Log Stream](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/concepts/hosted-agents?view=foundry#view-container-log-stream) for logging and troubleshooting.
 
@@ -329,11 +350,11 @@ Create the Discovery Workflow that orchestrates all agents for Demo 1.
 
 For more details of adding delcarative agent workflows in VS Code, refer to [Add declarative agent workflows in Visual Studio Code](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/how-to/vs-code-agents-workflow-low-code?view=foundry).
 
-1. In the Azure AI Foundry portal, create a new empty workflow by Build > Workflows > Create > Blank.
+1. In the Microsoft Foundry portal, create a new empty workflow by Build > Workflows > Create > Blank.
 
 2. Save it by giving it a workflow name e.g. `travel-planner-workflow`.
 
-3. In the right up corner of the Canva, switch `Visualizer` mode to `YAML` mode. Then open it by clicking "Open in VS Code for the Web". 
+3. In the right up corner of the Canva, switch `Visualizer` mode to `YAML` mode. Then open it by clicking "Open in VS Code for the Web".
 ![Switch Mode Screenshot](foundry/assets/foundry_workflow_switch_mode.png)
 Then you will see interface like this:
 ![Open in VS Code](foundry/assets/open_foundry_flow_in_vs_code.png)
@@ -363,7 +384,7 @@ Post creation, you should have the Travel Planning Parent Agent, and a few agent
 
 ### Step 6: Test Run Each Demo
 
-**Demo 1: Foundry Workflow with Cross-Platform Agents** 
+**Demo 1: Foundry Workflow with Cross-Platform Agents**
 
 Trigger the Discovery Workflow in the Foundry portal and verify it produces a draft itinerary.
 
@@ -741,7 +762,7 @@ Sample run in console:
 | Directory | Description |
 |-----------|-------------|
 | `shared/` | Shared agent wrappers and schema references used across platforms |
-| `foundry/` | Azure AI Foundry agent definitions, deployment scripts, and workflows |
+| `foundry/` | Microsoft Foundry agent definitions, deployment scripts, and workflows |
 | `copilot_studio/` | Copilot Studio agent configuration and setup guides |
 | `pro_code/` | M365 SDK client for calling Copilot Studio agents (Demo 3) |
 
