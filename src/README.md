@@ -2,6 +2,13 @@
 
 A distributed multi-agent system for AI-powered travel planning using the Microsoft Agent Framework, A2A Protocol, and LLM-driven orchestration.
 
+## Agent Services & Frameworks
+
+| Technology | What it is | Where it's used | Why |
+|------------|-----------|-----------------|-----|
+| **[Microsoft Agent Framework](https://github.com/microsoft/agents)** (open-source) | A code-first Python framework for building AI agents with tools, structured output, and session management | [`agents/`](agents) — 11 specialized **working agents** (transport, stay, dining, events, POI, route, budget, booking, aggregator, validator, intake clarifier) | Lightweight and portable — agent logic can be wrapped with any communication protocol (here, A2A) and redeployed to other platforms without rewriting |
+| **[Microsoft Foundry Classic (Foundry v1) — Agent Service](https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview?view=foundry-classic)** (GA) | A fully managed Azure service for hosting pre-provisioned AI agents with server-side thread and tool-call management | [`../infrastructure/azure_agent_setup.py`](../infrastructure/azure_agent_setup.py) + [`orchestrator/`](orchestrator) — 4 **orchestrator agents** (router, classifier, planner, QA) | Provides managed state (threads, runs) and built-in tool orchestration, ideal for the stateful routing decisions that coordinate the working agents |
+
 ## Architecture Overview
 
 For the full-version architectural design, refer to:
