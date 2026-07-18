@@ -1,0 +1,4 @@
+name: travel-planner-aggregator
+description: Combines travel discovery results into one structure.
+prompt_file: ../shared/prompts/aggregator.txt
+tools: []

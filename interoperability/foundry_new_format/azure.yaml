@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+requiredVersions:
+    extensions:
+        azure.ai.agents: '>=1.0.0-beta.4'
+name: travel-planner-foundry-new-format
+services:
+    ai-project:
+        host: azure.ai.project
+        endpoint: ${AZURE_AI_PROJECT_ENDPOINT}
+    travel-planner-dining:
+        project: .
+        host: azure.ai.agent
+        language: python
+        uses:
+            - ai-project
+            - travel-search
+        codeConfiguration:
+            entryPoint: run_dining.py
+            runtime: python_3_13
+        container:
+            resources:
+                cpu: "0.5"
+                memory: 1Gi
+        description: Finds restaurants and dining options.
+        environmentVariables:
+            - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+              value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+            - name: TOOLBOX_NAME
+              value: travel-search
+            - name: TOOLBOX_ENDPOINT
+              value: ${TOOLBOX_TRAVEL_SEARCH_MCP_ENDPOINT}
+        kind: hosted
+        name: travel-planner-dining
+        protocols:
+            - protocol: responses
+              version: 2.0.0
+        startupCommand: python run_dining.py
+    travel-planner-stay:
+        project: .
+        host: azure.ai.agent
+        language: python
+        uses:
+            - ai-project
+            - travel-search
+        codeConfiguration:
+            entryPoint: run_stay.py
+            runtime: python_3_13
+        container:
+            resources:
+                cpu: "0.5"
+                memory: 1Gi
+        description: Finds hotels, neighborhoods, and accommodation options.
+        environmentVariables:
+            - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+              value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+            - name: TOOLBOX_NAME
+              value: travel-search
+        kind: hosted
+        name: travel-planner-stay
+        protocols:
+            - protocol: responses
+              version: 2.0.0
+        startupCommand: python run_stay.py
+    travel-planner-weather-proxy:
+        project: .
+        host: azure.ai.agent
+        language: python
+        uses:
+            - ai-project
+        codeConfiguration:
+            entryPoint: run_weather_proxy.py
+            runtime: python_3_13
+        container:
+            resources:
+                cpu: "0.5"
+                memory: 1Gi
+        description: Calls the Copilot Studio Weather agent through Direct Line.
+        environmentVariables:
+            - name: COPILOTSTUDIOAGENT__DIRECTLINE_SECRET
+              value: ${COPILOTSTUDIOAGENT__DIRECTLINE_SECRET}
+        kind: hosted
+        name: travel-planner-weather-proxy
+        protocols:
+            - protocol: responses
+              version: 2.0.0
+        startupCommand: python run_weather_proxy.py
+    travel-search:
+        host: azure.ai.toolbox
+        uses:
+            - ai-project
+        description: Web search for travel discovery agents.
+        tools:
+            - type: web_search
+infra:
+    provider: microsoft.foundry

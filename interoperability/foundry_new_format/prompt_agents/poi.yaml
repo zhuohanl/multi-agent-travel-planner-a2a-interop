@@ -1,0 +1,5 @@
+name: travel-planner-poi
+description: Finds points of interest and destination activities.
+prompt_file: ../shared/prompts/poi.txt
+tools:
+  - bing_grounding

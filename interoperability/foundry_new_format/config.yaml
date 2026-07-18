@@ -1,0 +1,15 @@
+project_endpoint_env: PROJECT_ENDPOINT
+model_deployment_env: AZURE_OPENAI_DEPLOYMENT_NAME
+bing_connection_env: BING_PROJECT_CONNECTION_ID
+
+prompt_agents:
+  transport:
+    definition: prompt_agents/transport.yaml
+  poi:
+    definition: prompt_agents/poi.yaml
+  events:
+    definition: prompt_agents/events.yaml
+  aggregator:
+    definition: prompt_agents/aggregator.yaml
+  route:
+    definition: prompt_agents/route.yaml

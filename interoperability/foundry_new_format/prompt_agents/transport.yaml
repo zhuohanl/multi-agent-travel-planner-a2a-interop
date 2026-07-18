@@ -1,0 +1,5 @@
+name: travel-planner-transport
+description: Finds flights, trains, buses, transfers, and local transit options.
+prompt_file: ../shared/prompts/transport.txt
+tools:
+  - bing_grounding

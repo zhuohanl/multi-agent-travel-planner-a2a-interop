@@ -20,6 +20,13 @@ Specifically, the [`foundry/`](foundry) directory contains adaptors ([`shared/ag
 - **Convert** them into Foundry v2 agent definitions (native agents or hosted agents running in containers)
 - **Deploy** them to an Microsoft Foundry project, where they can be orchestrated by Foundry workflows or called from Copilot Studio via the [Add Agents](https://learn.microsoft.com/en-gb/microsoft-copilot-studio/add-agent-foundry-agent) feature
 
+### Parallel Foundry new-format track
+
+[`foundry_new_format/`](foundry_new_format) creates eight additive
+`travel-planner-*` agents using the current Foundry identity, endpoint,
+Prompt-agent, and Hosted-agent formats. It does not replace the stable demos
+under [`foundry/`](foundry).
+
 ## Overview
 
 The demo showcases how agents built on different Microsoft platforms can work together. Six travel-planning domain agents (Transport, POI, Events, Stay, Dining, Weather) are deployed across Foundry and Copilot Studio, then orchestrated in different ways to demonstrate platform interoperability.

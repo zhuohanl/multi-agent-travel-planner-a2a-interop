@@ -51,6 +51,7 @@ Demo 2:
 |-----------|-------------|
 | `src/` | A2A agent implementations (Microsoft Agent Framework), orchestrator (Foundry Classic / v1 Agent Service), and shared utilities |
 | `interoperability/` | Foundry New (v2) Agent Service adaptors, Copilot Studio config, deployment scripts |
+| `interoperability/foundry_new_format/` | Parallel track for eight additive `travel-planner-*` agents using current Foundry Prompt and Hosted formats; it does not replace the stable `interoperability/foundry/` demos |
 | `tests/` | Unit and integration tests for both tracks |
 | `scripts/` | Provisioning scripts (e.g. `provision_azure_agents.py`) |
 | `infrastructure/` | Azure resource setup (Cosmos DB, Azure Agent Service) |

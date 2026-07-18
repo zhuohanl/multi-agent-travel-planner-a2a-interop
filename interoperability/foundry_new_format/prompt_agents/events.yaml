@@ -1,0 +1,5 @@
+name: travel-planner-events
+description: Finds date-specific events and festivals.
+prompt_file: ../shared/prompts/events.txt
+tools:
+  - bing_grounding

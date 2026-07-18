@@ -1,0 +1,4 @@
+name: travel-planner-route
+description: Creates a day-by-day itinerary from discovery results.
+prompt_file: ../shared/prompts/route.txt
+tools: []
